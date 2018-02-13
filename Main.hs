@@ -35,8 +35,8 @@ instance Show Atom where
 car (Tree (Tree l r) (Atomic Nil)) = l
 cdr (Tree (Tree l r) (Atomic Nil)) = r
 cons (Tree s1 (Tree s2 (Atomic Nil))) = Tree s1 s2
-add (Atomic Nil) = 0
-add (Tree (Atomic (Integer i)) r) = i + add r
+add (Atomic Nil) = Atomic (Integer 0)
+add (Tree (Atomic (Integer i)) r) = case add r of (Atomic (Integer rInt)) -> Atomic (Integer $ i + rInt)
 
 interpret :: String -> IO ()
 interpret = print . snd . evaluate (Atomic Nil) (Atomic Nil) . snd . fromJust . tryParse parseSExp . tokenize
