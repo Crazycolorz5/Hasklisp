@@ -27,8 +27,9 @@ identifierToAtom x = case map toUpper x of
                           _ -> Symbolic x
 
 sexpParser :: Parser SExpression
-sexpParser = m_whiteSpace >> (m_parens (sexp_inner <|> return (Atomic Nil)) <|> fmap Atomic atomParser)
+sexpParser = (m_parens (sexp_inner <|> return (Atomic Nil)) <|> fmap Atomic atomParser)
     where 
-        sexp_inner = sexpParser >>= \left -> do { char '.'; right <- sexpParser; return (Tree left right) } 
+        sexp_inner = sexpParser >>= \left -> do { dot; right <- sexpParser; return (Tree left right) } 
           <|> (fmap (Tree left . (foldr Tree (Atomic Nil))) $ many sexpParser)
 
+mainParser = m_whitespace >> many sexpParser
