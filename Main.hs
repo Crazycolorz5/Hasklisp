@@ -7,11 +7,9 @@ import Parser
 import Data.Char (isDigit, isSpace)
 import Data.Maybe (fromJust)
 import Debug.Trace (traceShow)
+import LispAST
 
 type Identifier = String
-
-data SExpression = Atomic Atom | Tree SExpression SExpression
-data Atom = Integer Int | Symbolic Identifier | T | Nil --TODO: Doubles?
 data Constant = CInteger Int | CT | CNil
 
 instance Show Constant where
@@ -21,22 +19,14 @@ instance Show Constant where
 
 type AList = SExpression
 type DList = SExpression
-
-instance Show SExpression where
-    show (Atomic a) = show a
-    show (Tree l r) = '(' : show l ++ " . " ++ show r ++ ")"
-
-instance Show Atom where
-    show (Integer i) = show i
-    show (Symbolic s) = s
-    show T = "T"
-    show Nil = "Nil"
     
 car (Tree (Tree l r) (Atomic Nil)) = l
 cdr (Tree (Tree l r) (Atomic Nil)) = r
 cons (Tree s1 (Tree s2 (Atomic Nil))) = Tree s1 s2
 add (Atomic Nil) = Atomic (Integer 0)
 add (Tree (Atomic (Integer i)) r) = case add r of (Atomic (Integer rInt)) -> Atomic (Integer $ i + rInt)
+atom (Tree (Atomic _) (Atomic Nil)) = Atomic T
+atom (Tree _ (Atomic Nil)) = Atomic Nil
 
 interpret :: String -> IO ()
 interpret = print . snd . evaluate (Atomic Nil) (Atomic Nil) . snd . fromJust . tryParse parseSExp . tokenize
